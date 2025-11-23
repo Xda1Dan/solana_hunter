@@ -7,7 +7,7 @@ import logging
 from collections import deque
 
 # --- Configuration ---
-RPC_URL = "https://api.mainnet-beta.solana.com"  # Replace with your premium RPC if you have one
+RPC_URL = "https://solana-mainnet.api.syndica.io/api-key/BSjbDnjDjdi6yZc1Kb9e3AJCWA9b33GxSWQApPjUNWdq1YJiR62KWNhLxHaTUdqdLGzeZehbfGBfBJBvKkWnDz8XFmjetyAup7"  # Replace with your premium RPC if you have one
 MAX_BATCH_SIZE = 50  # Number of blocks to fetch in one HTTP request
 CONCURRENCY = 5      # Number of concurrent batch requests
 MIN_BALANCE_SOL = 1.0

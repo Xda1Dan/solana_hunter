@@ -21,7 +21,7 @@ ssh -i /path/to/your-key.pem ubuntu@<YOUR_SERVER_IP>
 Update the system and install essential tools:
 ```bash
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y python3 python3-pip python3-venv git build-essential curl screen htop
+sudo apt install -y python3 python3-pip python3-venv git build-essential curl screen htop libssl-dev pkg-config
 ```
 
 Install Rust (for the Matcher):
@@ -64,7 +64,7 @@ cd ..
 ### 3.4. Permissions
 Ensure your scripts are executable:
 ```bash
-chmod +x start.sh stop.sh
+chmod +x start.sh stop.sh start_scraper.sh start_matcher.sh stop_scraper.sh stop_matcher.sh
 ```
 
 ## 4. Configuration
@@ -77,33 +77,70 @@ nano monitor_bot.py
 *Press `Ctrl+X`, `Y`, `Enter` to save and exit.*
 
 ### 4.2. Scraper Configuration
-Open `fast_scraper.py` to adjust `CONCURRENCY` if needed (default is 5).
+Open `fast_scraper.py` to adjust rate limiting if needed (default: CONCURRENCY=2, RATE_LIMIT_DELAY=0.3).
 ```bash
 nano fast_scraper.py
 ```
 
 ## 5. Running the System
 
-We will use `screen` to keep the session alive even if you disconnect.
+### Option A: Modular Workflow (Recommended for Flexibility)
 
-1.  **Start a new screen session**:
-    ```bash
-    screen -S hunter
-    ```
+#### Phase 1: Scraping (Collect Targets)
+Run the scraper alone for 2-6 hours to build your target list:
 
-2.  **Activate Python environment** (if not already active):
-    ```bash
-    source venv/bin/activate
-    ```
+```bash
+screen -S scraper
+source venv/bin/activate
+./start_scraper.sh
+# Press Ctrl+A then D to detach
+```
 
-3.  **Launch the System**:
-    ```bash
-    ./start.sh
-    ```
-    You should see output indicating the Scraper, Matcher, and Bot have started.
+**Check progress**: `tail -f scraper.log`
 
-4.  **Detach**:
-    Press `Ctrl+A`, then `D` to detach from the screen session. The system will keep running in the background.
+**When done**: `./stop_scraper.sh`
+
+#### Phase 2: Matching (Hunt for Wallets)
+After collecting targets, run the matcher and bot:
+
+```bash
+screen -S matcher
+source venv/bin/activate
+./start_matcher.sh
+# Press Ctrl+A then D to detach
+```
+
+**Monitor via Telegram bot!**
+
+**When done**: `./stop_matcher.sh`
+
+### Option B: All-in-One Workflow
+
+Run everything together:
+
+```bash
+screen -S hunter
+source venv/bin/activate
+./start.sh
+# Press Ctrl+A then D to detach
+```
+
+**Stop**: `./stop.sh`
+
+### Switching from Tmux to Screen
+
+If you have an existing tmux session:
+
+```bash
+# List sessions
+tmux ls
+
+# Kill specific session
+tmux kill-session -t <session_name>
+
+# Or kill all
+tmux kill-server
+```
 
 ## 6. Monitoring & Maintenance
 
