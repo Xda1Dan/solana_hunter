@@ -411,8 +411,12 @@ async def monitor_found(app: Application):
         
         await asyncio.sleep(5)
 
+async def post_init(application: Application):
+    """Initialize monitoring task after application starts"""
+    asyncio.create_task(monitor_found(application))
+
 def main():
-    app = Application.builder().token(TOKEN).build()
+    app = Application.builder().token(TOKEN).post_init(post_init).build()
 
     # Command handlers
     app.add_handler(CommandHandler("start", start))
@@ -425,10 +429,6 @@ def main():
     
     # Callback handler
     app.add_handler(CallbackQueryHandler(button))
-
-    # Start monitor task
-    loop = asyncio.get_event_loop()
-    loop.create_task(monitor_found(app))
 
     logger.info("✅ Enhanced Solana Hunter Bot started!")
     app.run_polling()
